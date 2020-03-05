@@ -3,7 +3,7 @@ Accessing and using Open FI$Cal API data
 
 ![](./images/apipage.png "API page image")
 
-This repository contains instructions for accessing the demo version of the Open FI\$Cal API, as well as open questions and ideas for projects using the Open FI\$cal data.
+This repository contains instructions for accessing the demo version of the Open FI\$Cal API, as well as open questions and ideas for projects using the Open FI\$Cal data.
 
 The example code was written in R. To run the code in this repository, you need:
 
@@ -32,4 +32,4 @@ The site includes multiple ways to interact with the data. From least to most te
 1. **Read descriptions of the data:** The Open FI$Cal Learning Center includes basic terminology to help you understand the information you'll find on the site.
 2. [**Use the interactive charts:**](https://fiscalca.opengov.com/transparency#/) The main body of the site contains interactive charts that let you drill down into and display the data you're interested in.
 3. [**Download the data:**](https://open.fiscal.ca.gov/download-expenditures.html) Download the data to analyze it in bulk using your own preferred software or code.
-4. [**Use the API:**](https://catalog.ogopendata.com/dataset/california-expenditure-data) The demo API is not yet on the official site, but lets you programatically pull in data to your own app or website. The demo API only connects to the vendor transactions file from the main site.
+4. [**Use the API:**](https://catalog.ogopendata.com/dataset/california-expenditure-data) The demo API is not yet on the official site, but lets you programatically pull in data to your own app or website. Currently, the demo API only connects to the vendor transactions file from the main site.
