@@ -19,7 +19,9 @@ Check out the "Issues" tab in this repo. Answer questions, ask follow-up questio
 
 [The demo version of the Open FI$Cal API is at this link.](https://catalog.ogopendata.com/dataset/california-expenditure-data) You can read the API documentation linked there.
 
-For examples of how to use the API, open the "API_Examples.Rmd" or "API_Examples.md" file in this repository and follow the instructions there. The .Rmd file can be knit within RStudio to produce an HTML document that runs all of the embedded code and displays the results.
+For examples of how to use the API with R, open the "API_Examples.Rmd" or "API_Examples.md" file in this repository and follow the instructions there. The .Rmd file can be knit within RStudio to produce an HTML document that runs all of the embedded code and displays the results.
+
+For examples of how to use the API with Python, open the "API_Examples_Python.ipynb" file.
 
 ## Wait, what's Open FI$Cal exactly?
 
