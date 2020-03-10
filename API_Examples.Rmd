@@ -1,6 +1,6 @@
 ---
 title: "API_Examples"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This document contains embedded R code that demonstrates how to access the demo Open FI$Cal API, located at https://catalog.ogopendata.com/.
 
-This version, the .Rmd file, can be knit within RStudio to produce an HTML document that runs all of the embedded code and displays the results.
+The .Rmd version of this document can be knit within RStudio to produce the .md version of this document (both included in this repo).
 
 See also the documentation for the [CKAN API](https://docs.ckan.org/en/ckan-2.7.3/api/) and the [CKAN Datastore API](https://docs.ckan.org/en/ckan-2.7.3/maintaining/datastore.html#the-datastore-api).
 
