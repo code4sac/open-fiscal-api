@@ -46,7 +46,7 @@ resource_ids
 NOTE: On this demo server, this request sometimes results in a server error. If this happens, choose a different resource, paste it into the appropriate place in the URL, and try again.
 
 ```{r five_rows}
-five_rows <- GET("https://catalog.ogopendata.com/datastore/odata3.0/3e5b9f4e-c1dc-4752-bb38-096d480ca3f1?$top=5&$skip=1&$format=json")
+five_rows <- GET("https://catalog.ogopendata.com/datastore/odata3.0/006d1601-7f99-413f-8c85-56b0249fba56?$top=5&$skip=1&$format=json")
 five_rows_text <- content(five_rows, "text")
 five_rows_JSON <- fromJSON(five_rows_text, flatten = T)
 five_rows_JSON
@@ -55,7 +55,7 @@ five_rows_JSON
 ### Use SQL to get all vendors like `%HARLEY%` from a specific resource.
 
 ```{r harley}
-harley <- GET("https://catalog.ogopendata.com/api/3/action/datastore_search_sql?sql=SELECT%20*%20from%20%22cc491680-1eb0-42d2-8dac-47a2f1204d3e%22%20WHERE%20%22Vendor%20Name%22%20LIKE%20%27%HARLEY%%27")
+harley <- GET("https://catalog.ogopendata.com/api/3/action/datastore_search_sql?sql=SELECT%20*%20from%20%220f261581-45ab-413d-bc05-d7571e73ba8b%22%20WHERE%20%22Vendor%20Name%22%20LIKE%20%27%HARLEY%%27")
 harley_text <- content(harley, "text")
 harley_JSON <- fromJSON(harley_text, flatten = T)
 harley_records <- harley_JSON$result$records
@@ -82,7 +82,7 @@ Using the `resource_ids` vector we created earlier, this script loops through al
 
 ```{r all_resources}
 FISCal_list <- vector(mode = "list", length = length(resource_ids)) #creates a list to drop the retrieved data into; in this case, it will be a list of data frames
-BU = 8880 #can be any business unit you want
+BU = 7760 #can be any business unit you want
 count = 0
 for (item in resource_ids) {
   count = count + 1
