@@ -5,11 +5,17 @@ Accessing and using Open FI$Cal API data
 
 This repository contains instructions for accessing the demo version of the Open FI\$Cal API, as well as open questions and ideas for projects using the Open FI\$Cal data.
 
-The example code was written in R. To run the code in this repository, you need:
+The example code was written in R and Python. To run the code in this repository, you need:
 
-- The latest version of [R](https://www.r-project.org/)
-- The latest version of [RStudio](https://rstudio.com/)
+- [R](https://www.r-project.org/)
+- [RStudio](https://rstudio.com/)
 - The R packages included in the code
+
+AND/OR
+
+- [Python](https://www.python.org/downloads/)
+- [Jupyter Notebook](https://jupyter.org/install)
+- The Python modules included in the code
 
 ## Where to find open questions and ideas
 
@@ -19,7 +25,7 @@ Check out the "Issues" tab in this repo. Answer questions, ask follow-up questio
 
 [The demo version of the Open FI$Cal API is at this link.](https://catalog.ogopendata.com/dataset/california-expenditure-data) You can read the API documentation linked there.
 
-For examples of how to use the API with R, open the "API_Examples.Rmd" or "API_Examples.md" file in this repository and follow the instructions there. The .Rmd file can be knit within RStudio to produce an HTML document that runs all of the embedded code and displays the results.
+For examples of how to use the API with R, open the "API_Examples.Rmd" or "API_Examples.md" file in this repository and follow the instructions there. The .Rmd file can be knit within RStudio to produce the .md version of the file, running all the code in the file in the process.
 
 For examples of how to use the API with Python, open the "API_Examples_Python.ipynb" file.
 
