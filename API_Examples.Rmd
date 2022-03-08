@@ -1,13 +1,13 @@
 ---
-title: "API_Examples"
-output: rmarkdown::github_document
+title: "Github Open Data Api Demo"
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-This document contains embedded R code that demonstrates how to access the demo Open FI$Cal API, located at https://catalog.ogopendata.com/.
+This document contains embedded R code that demonstrates how to access FI$Cal expenditure data located at the [California Open Data Portal](https://data.ca.gov/) using the CKAN API.
 
 The .Rmd version of this document can be knit within RStudio to produce the .md version of this document (both included in this repo).
 
@@ -16,91 +16,128 @@ See also the documentation for the [CKAN API](https://docs.ckan.org/en/ckan-2.7.
 ## Load Necessary Packages
 
 If you don't have these packages installed, install them with `install.packages("packagename")`.
-
-```{r load, results = "hide", message = F}
-library("tidyverse") #a set of packages that make working in R more efficient
-library("httr") #tools for working with URLs
-library("jsonlite") #JSON parser and generator
-library("data.table") #more efficient extention of R's base data.frames
+```{r load, results = "hide", message = F, warning = F}
+library(jsonlite)  #JSON parser and generator
+library(tidyverse) #a set of packages that make working in R more efficient
+library(data.table) #more efficient extension of R's base data.frames
 ```
 
 ## Get Resource IDs
 
-This script uses the CKAN API to get all the information about the `california-expenditure-data` package (i.e. dataset) and extract the IDs for each of the resources that can be searched with the datastore API. For this particular dataset, there is one resource (i.e. file) for each month of data.
+This script uses the CKAN API to get all the information about the vendor-transactions package (i.e. dataset) and extract the IDs for each of the resources that can be searched with the datastore API. For this particular dataset, there is one resource (i.e. file) for each month of data.
 
 This is an important step, as the resulting list of resource IDs will allow future scripts to loop through all of the resources to get information on all months.
 
+Note there are two FI\$Cal datasets available on the Open Data Portal:
+
+* [Vendor Transactions](https://data.ca.gov/dataset/vendor-transactions) is the smaller dataset, containing all transactions for which there is an associated vendor name.
+* [Spending Transactions](https://data.ca.gov/dataset/spending-transactions) is the larger dataset, containing every expenditure transaction for the more than 150 departments that use FI\$Cal for their accounting.
+
+The code examples in this file use the Vendor Transactions dataset. To use the Spending Transactions dataset, replace the URL in the following code block with the URL in the commented line. All field names are identical between the datasets, except that Spending Transactions does not contain a "Vendor Name" field.
+
 ```{r get_resources}
-pkg_show <- GET("https://catalog.ogopendata.com/api/3/action/package_show?id=california-expenditure-data") #gets info on the "california-expenditure-data" package
-pkg_show_text <- content(pkg_show, "text") #extracts the text content
-pkg_show_JSON <- fromJSON(pkg_show_text, flatten = T) #turns the JSON response into a usable format
-pkg_show_resources <- pkg_show_JSON$result$resources #extracts just the results$resources table from the response
-resource_ids <- pkg_show_resources$id[which(pkg_show_resources$datastore_active)] #creates a vector of just the resource IDs that have indexed, searchable data (are "datastore active") - WILL BE USED LATER
-resource_ids
+
+### Link to the api 
+url <- "https://data.ca.gov/api/3/action/package_show?id=vendor-transactions" #specifies that the package we want information for is "vendor-transactions"
+
+# For "spending-transactions", replace the URL with: "https://data.ca.gov/api/3/action/package_show?id=spending-transactions", then follow the same steps below
+
+### Use fromJSON to read the text in the link
+vendor <- fromJSON(url)
+vendor_resources <- vendor$result$resources #extracts just the results$resources table from the response
+vendor_resource_ids <- vendor_resources$resource_id[which(vendor_resources$datastore_active)] #creates a vector of just the resource IDs that have indexed, searchable data (are "datastore active") - WILL BE USED LATER
+vendor_resource_ids
 ```
 
 ## Code Demos Using One Resource
 
-### Get the first 5 rows of data, skipping the first, from a specific resource.
-
-NOTE: On this demo server, this request sometimes results in a server error. If this happens, choose a different resource, paste it into the appropriate place in the URL, and try again.
+### Get the first 5 rows of data, from a specific resource.
 
 ```{r five_rows}
-five_rows <- GET("https://catalog.ogopendata.com/datastore/odata3.0/006d1601-7f99-413f-8c85-56b0249fba56?$top=5&$skip=1&$format=json")
-five_rows_text <- content(five_rows, "text")
-five_rows_JSON <- fromJSON(five_rows_text, flatten = T)
-five_rows_JSON
+#Use resource ID for FY19P01
+five_rows_url <- "https://data.ca.gov/api/3/action/datastore_search?resource_id=23460e28-6a4b-419d-997e-7c51251e733e&limit=5"
+five_rows_JSON <- fromJSON(five_rows_url)
+five_rows_records <- five_rows_JSON$result$records
+five_rows_records
 ```
 
-### Use SQL to get all vendors like `%HARLEY%` from a specific resource.
+### Get all records containing `jones` from a specific resource.
 
-```{r harley}
-harley <- GET("https://catalog.ogopendata.com/api/3/action/datastore_search_sql?sql=SELECT%20*%20from%20%220f261581-45ab-413d-bc05-d7571e73ba8b%22%20WHERE%20%22Vendor%20Name%22%20LIKE%20%27%HARLEY%%27")
-harley_text <- content(harley, "text")
-harley_JSON <- fromJSON(harley_text, flatten = T)
-harley_records <- harley_JSON$result$records
-harley_records <- harley_records[ , -24] #remove "_full_text" field for easier display
-head(harley_records)
+```{r jones}
+jones <- "https://data.ca.gov/api/3/action/datastore_search?resource_id=23460e28-6a4b-419d-997e-7c51251e733e&q=jones"
+jones_JSON <- fromJSON(jones)
+jones_records <- jones_JSON$result$records
+head(jones_records)
 ```
 
-### Use SQL to get all business units like `2720` from a specific resource.
+### Use SQL to get all account codes like `5442000` from a specific resource.
 
-Each department has a four-digit business unit code. 2720 is the California Highway Patrol.
+Account code 5442000 is Medical and Health Care Payments.
 
-```{r test_dept}
-test_dept <- GET("https://catalog.ogopendata.com/api/3/action/datastore_search_sql?sql=SELECT%20*%20from%20%22cc491680-1eb0-42d2-8dac-47a2f1204d3e%22%20WHERE%20%22Business%20Unit%22%20LIKE%20%272720%27")
-test_dept_text <- content(test_dept, "text")
-test_dept_JSON <- fromJSON(test_dept_text, flatten = T)
-test_dept_records <- test_dept_JSON$result$records
-test_dept_records <- test_dept_records[ , -24]
-head(test_dept_records)
+```{r test_account}
+test_account <- "https://data.ca.gov/api/3/action/datastore_search_sql?sql=SELECT%20*%20from%20%2223460e28-6a4b-419d-997e-7c51251e733e%22%20WHERE%20%22account%22%20LIKE%20%275442000%27"
+test_account_JSON <- fromJSON(test_account)
+test_account_records <- test_account_JSON$result$records
+head(test_account_records)
 ```
+
 
 ## Use a loop to get data from all resources
 
-Using the `resource_ids` vector we created earlier, this script loops through all of the resource IDs and gets information for the specified business unit for all months. The example uses BU 8880, which is the Department of FISCal.
+Using the `vendor_resource_ids` vector we created earlier, this script loops through all of the resource IDs and gets information for the specified account code for all months. This example uses Account Code 5326100, which is "electricity".
 
-```{r all_resources}
-FISCal_list <- vector(mode = "list", length = length(resource_ids)) #creates a list to drop the retrieved data into; in this case, it will be a list of data frames
-BU = 7760 #can be any business unit you want
+Note that by default, a query will return no more than 100 rows. However, the limit can be adjusted to return up to 32,000 rows per query. This code adjusts the limit to the maximum and then checks whether the total number of records that match the query is greater than 32,000. If it is, the code loops through the query as many times as necessary to return all the matching records from a given resource before moving on to the next.
+
+```{r loop_through_resources}
+FISCal_list <- vector(mode = "list", length = length(vendor_resource_ids)) #Creates a list to drop the retrieved data into; in this case, it will be a list of data frames
+
+account_code_query <- "&q=5326100" #This is the account code for "Electricity"
+
 count = 0
-for (item in resource_ids) {
+
+# Use a for loop to iterate through each resource in the list
+for (item in vendor_resource_ids[37:length(vendor_resource_ids)]) {
   count = count + 1
-  temp <- GET(paste0("https://catalog.ogopendata.com/api/3/action/datastore_search_sql?sql=SELECT%20*%20from%20%22", item, "%22%20WHERE%20%22Business%20Unit%22%20LIKE%20%27", BU , "%27")) #gets the data for the appropriate resource and BU
-  temp_text <- content(temp, "text")
-  temp_JSON <- fromJSON(temp_text, flatten = T)
-  temp_records <- temp_JSON$result$records
-  FISCal_list[[count]] <- temp_records #after previous steps format the data correctly, this drops it into the appropriate spot in the list
+  templist <- try(fromJSON(paste0("https://data.ca.gov/api/3/action/datastore_search?&resource_id=", item, "&limit=32000", account_code_query)), silent = T)
+  tempDF <- templist$result$records # Creates a temporary data frame to store results
+  row_total <- templist$result$total # Stores the number of records in the resource that match the query, which might be more than the 32K row max query limit
+  resource_loops = 1
+  #The following loop only runs if the number of matching records exceeds the 32K row max query limit, adding records until all the records that match the query are in the data frame
+  while (row_total > nrow(tempDF)) {
+    offset = 32000 * resource_loops
+    templist <- try(fromJSON(paste0("https://data.ca.gov/api/3/action/datastore_search?&resource_id=", item, "&limit=32000", account_code_query, "&offset=", offset)), silent = T)
+    tempDF <- rbind(tempDF, templist$result$records)
+    resource_loops = resource_loops + 1
+  }
+  FISCal_list[[count]] <- tempDF #this drops the resulting data frame into the appropriate spot in the list
+  
 }
 FISCal <- rbindlist(FISCal_list) #data.table method to quickly combine all list items into one data frame
-FISCal <- FISCal[ , -24]
-
-###Plot number of transactions by month
-FISCal_month_plot <- FISCal %>%
-  ggplot(aes(x = as.Date(`Accounting Date`))) +
-  geom_histogram(fill = "steelblue", color = "white", bins = 41) +
-  scale_x_date() +
-  theme_minimal() +
-  labs(title = "Number of Transactions Per Month")
-FISCal_month_plot
 ```
+
+
+## Group and graph data from previous query
+
+```{r group_and_graph}
+options(scipen=999) #prevent scientific notation
+
+electricity_spend <- FISCal[, c(10, 14, 16)] #extract date, agency, and monetary amount columns
+electricity_spend$accounting_date <- as.Date(electricity_spend$accounting_date) #format accounting_date as date
+electricity_spend$monetary_amount <- as.numeric(electricity_spend$monetary_amount) #format monetary_amount as numeric
+
+### Summarizes dollar amount by month and agency
+electricity_spend_sum <- electricity_spend %>%
+  mutate(accounting_date = format(accounting_date, "%Y-%m")) %>%
+  group_by(accounting_date, agency_name) %>%
+  summarize(monthly_total = sum(monetary_amount), .groups = 'drop')
+
+### Stacked bar plot by monthly monetary amount for different agencies
+ggplot(data=electricity_spend_sum,
+       aes(fill=agency_name, x=accounting_date, y=monthly_total))+
+  geom_bar(position="stack", stat="identity")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  ggtitle("Electricity Spending By State Agency Over Time")+
+  xlab("Accounting Date") + ylab("Monthly Expenditure ($)")
+```
+
+
