@@ -419,4 +419,4 @@ ggplot(data=electricity_spend_sum,
   xlab("Accounting Date") + ylab("Monthly Expenditure ($)")
 ```
 
-![](Github-Open-Data-Api-Demo---2022-02-28_files/figure-gfm/group_and_graph-1.png)<!-- -->
+![](API_Examples_files/figure-gfm/all_resources-1.png)<!-- -->
